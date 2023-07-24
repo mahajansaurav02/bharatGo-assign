@@ -106,6 +106,72 @@ const getUsers = async (req, res) => {
 
     }
 }
+
+
+//====================================================================================================================================
+const getUserById=async(req,res)=>{
+
+      const userId = req.params.id;
+
+  try {
+    const query = 'SELECT * FROM users WHERE id = $1';
+    const result = await pool.query(query, [userId]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+      return res.status(200).json({message:"User Found",data:user});
+  } catch (error) {
+    console.error(error);
+   return  res.status(500).json({ error:error.message });
+  }
+
+}
+
+//=================================================================================================================================================
+
+
+const updateUserById=async(req,res)=>{
+const userId = req.params.id;
+  const userData = req.body;
+
+  try {
+    const query = `
+      UPDATE users 
+      SET name = $1, email = $2, mobile = $3, password = $4
+      WHERE id = $5
+    `;
+
+    const values = [userData.name, userData.email, userData.mobile, userData.password, userId];
+
+    await pool.query(query, values);
+
+    res.json({ message: 'User updated successfully.' });
+  } catch (error) {
+    console.error(error);
+return res.status(500).json({ error:error.message });  }
+}
+
+//=====================================================================================================================
+
+const deleteUser=async()=>{
+    const userId = req.params.id;
+
+  try {
+    const deleteQuery = 'DELETE FROM users WHERE id = $1';
+    await pool.query(deleteQuery, [userId]);
+
+    return res.json({ message: 'User deleted successfully.' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error:error.message });  
+}
+;
+
+}
+
 module.exports = {
-    registerUser, getUsers, loginUser
+    registerUser, getUsers, loginUser,getUserById,updateUserById,deleteUser
 }
